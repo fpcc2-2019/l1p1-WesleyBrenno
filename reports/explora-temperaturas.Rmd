@@ -31,18 +31,84 @@ glimpse(climas)
 
 ### Quais os meses mais quentes e mais frios? 
 
+Como esperado os meses de verão (Dezembro - março) são mais quentes, apresentando as maiores temperaturas máximas, médias e mínimas, para ambas as cidades. E os meses de inverno (Junho, Julho e Agosto) são os mais frios apresentando as menores temperaturas máximas, médias e mínimas para ambas as cidades.
+```{r}
+climas %>%
+  group_by(cidade, mes) %>%
+  summarise(temp_max = median(tmax)) %>%
+  ggplot(aes(x= mes,y = temp_max, colour = cidade)) + 
+  geom_line() +
+  scale_x_continuous("Mês", breaks = seq(1,12,1)) +
+  scale_y_continuous("Temperatura máxima", breaks = seq(20,40,2))
+
+climas %>%
+  group_by(cidade, mes) %>%
+  summarise(temp_media = median(tmedia)) %>%
+  ggplot(aes(x= mes,y = temp_media, colour = cidade)) + 
+  geom_line() +
+  scale_x_continuous("Mês", breaks = seq(1,12,1)) +
+  scale_y_continuous("Temperatura média", breaks = seq(20,40,2))
+
+climas %>%
+  group_by(cidade, mes) %>%
+  summarise(temp_minima = median(tmin)) %>%
+  ggplot(aes(x= mes,y = temp_minima, colour = cidade)) + 
+  geom_line() +
+  scale_x_continuous("Mês", breaks = seq(1,12,1)) +
+  scale_y_continuous("Temperatura mínima", breaks = seq(0,30,2))
+```
 
 ### Qual foi o São João  mais frio de CG que está nos nossos dados?
-
+Considerando o São João como o mês de Junho inteiro, temos que os anos de 2003, 2008, 2014, 2016 e 2018 tiveram as menores temperaturas mínimas (Entre 17.3 e 17.6). Dentre esses, anos 2008 foi o ano que teve também a menor temperatura média (22.2) e a menor máxima (26.8). Assim, podemos considerar o ano de 2008 como o São João mais frio de CG.
+```{r}
+climas %>%
+  filter(cidade == "Campina Grande" & mes == 6) %>%
+  group_by(ano) %>%
+  summarise(temp_min = round(median(tmin),digits = 1), temp_max = round(median(tmax),digits = 1), temp_media = round(median(tmedia),digits = 1)) %>%
+  ggplot() +
+  geom_line(aes(x = ano, y = temp_max, colour = "Temperatura máxima")) +
+  geom_text(aes(x = ano, y = temp_max,label=temp_max),hjust=0, vjust=0, size=2.5) +
+  
+  geom_line(aes(x = ano, y = temp_min, colour = "Temperatura mínima")) +
+  geom_text(aes(x = ano, y = temp_min,label=temp_min),hjust=0, vjust=0, size=2.5) +
+    
+  geom_line(aes(x = ano, y = temp_media, colour = "Temperatura média")) +
+  geom_text(aes(x = ano, y = temp_media, label=temp_media),hjust=0, vjust=0, size=2.5) +
+      
+  scale_x_continuous(breaks = seq(1995,2018,2)) +
+  scale_y_continuous(breaks = seq(16,40,10)) +
+  theme(axis.text.x = element_text(angle = 45))+
+  labs(x = "Ano", y = "Temperatura")
+```
 
 
 ## Chuva
 
 ### Quanto chove por semana em JP e CG?
 
-Como é a distribuição do volume de chuvas por semana em JP e CG? A chuva varia mais ou menos que a temperatura? O formato da distribuição é igual? 
+### Como é a distribuição do volume de chuvas por semana em JP e CG? A chuva varia mais ou menos que a temperatura? O formato da distribuição é igual? 
 
 ### No geral, onde chove mais?
+A partir da média de todos os registros de chuvas disponíveis, em João pessoa chove mais do que em Campina Gande.
+
+```{r}
+climas %>%
+  group_by(cidade) %>%
+  summarise(total_chuva = mean(chuva)) %>%
+  ggplot(aes(x=cidade,y = total_chuva)) + 
+  geom_col()  +
+  labs(x = "Cidade", y = "Chuva (mm)")
+```
 
 ### A distribuição é diferente em meses específicos? 
-
+A Partir da média de chuvas por meses, temos que ocorre um aumento nas chuvas entre os meses de Março a Julho, em ambas as cidades. 
+ 
+```{r}
+climas %>%
+  group_by(mes, cidade) %>%
+  summarise(total_chuva = median(chuva)) %>%
+  ggplot(aes(x= mes,y = total_chuva, colour = cidade)) + 
+  geom_line() +
+  scale_x_continuous("Mês", breaks = seq(1,12,1)) +
+  scale_y_continuous("Chuva (mm)", breaks = seq(0,100,10))
+```
